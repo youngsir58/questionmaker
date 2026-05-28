@@ -2,6 +2,37 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Play, Square, Mic, AlertTriangle, ArrowRight, HelpCircle, Hourglass, HelpCircle as HelpIcon } from 'lucide-react';
 import type { Question, QuestionLevel, TestType } from '../../types';
 
+const MATH_SPEECH_CORRECTIONS: Record<string, string> = {
+  '택지점': '꼭짓점',
+  '꼭지점': '꼭짓점',
+  '꼬짓점': '꼭짓점',
+  '미분개수': '미분계수',
+  '한별식': '판별식',
+  '반별식': '판별식',
+  '발별식': '판별식',
+  '이양정리': '이항정리',
+  '이앙정리': '이항정리',
+  '촛점': '초점',
+  '영행열': '영행렬',
+  '여행렬': '영행렬',
+  '행열': '행렬',
+  '오도법': '호도법',
+  '나디안': '라디안',
+  '여캄수': '역함수',
+  '우칸': '우극한',
+  '좌칸': '좌극한',
+  '대칭성': '대칭성',
+};
+
+const correctSpeechText = (text: string): string => {
+  let corrected = text;
+  Object.entries(MATH_SPEECH_CORRECTIONS).forEach(([wrong, right]) => {
+    const regex = new RegExp(wrong, 'g');
+    corrected = corrected.replace(regex, right);
+  });
+  return corrected;
+};
+
 interface TestInterfaceProps {
   testType: TestType;
   topic: string;
@@ -13,6 +44,8 @@ interface TestInterfaceProps {
   questionText: string;
   onSubmitAnswer: (answerText: string, voiceUsed: boolean) => void;
   onQuit: () => void;
+  subject?: string;
+  unit?: string;
 }
 
 export const TestInterface: React.FC<TestInterfaceProps> = ({
@@ -25,7 +58,9 @@ export const TestInterface: React.FC<TestInterfaceProps> = ({
   currentLevel,
   questionText,
   onSubmitAnswer,
-  onQuit
+  onQuit,
+  subject,
+  unit
 }) => {
   const [answer, setAnswer] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -35,6 +70,10 @@ export const TestInterface: React.FC<TestInterfaceProps> = ({
 
   const recognitionRef = useRef<any>(null);
   const timerRef = useRef<any>(null);
+
+  const unitParts = unit ? unit.split(' ➔ ') : [];
+  const largeUnit = unitParts[0] || unit || '';
+  const mediumUnit = unitParts[1] || '';
 
   // 1. Timer countdown/up
   useEffect(() => {
@@ -64,7 +103,8 @@ export const TestInterface: React.FC<TestInterfaceProps> = ({
 
       rec.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
-        setAnswer(prev => prev + (prev ? ' ' : '') + transcript);
+        const correctedTranscript = correctSpeechText(transcript);
+        setAnswer(prev => prev + (prev ? ' ' : '') + correctedTranscript);
         setIsRecording(false);
       };
 
@@ -138,14 +178,12 @@ export const TestInterface: React.FC<TestInterfaceProps> = ({
     <div className="max-w-4xl mx-auto px-4 py-6 flex flex-col gap-6 animate-slide-up">
       {/* Scope Header */}
       <div className="card-glass p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <span className="text-[var(--text-muted)] text-xs font-semibold uppercase tracking-wider block">
-            {testType === 'daily' ? '오늘의 개념체크 (Daily Check)' : testType === 'weekly' ? '주간 연결체크 (Weekly Bridge)' : '월간 마스터체크 (Monthly Mastery)'}
-          </span>
-          <h2 className="text-lg font-extrabold text-[var(--text-title)] block mt-1 leading-snug">{topic}</h2>
-          <span className="text-xs text-[var(--text-muted)] mt-1.5 block leading-relaxed max-w-2xl bg-[var(--bg-primary)] p-2 rounded-lg border border-[var(--border-color)]">
-            🎯 <strong>성취 기준:</strong> {achievementStandard}
-          </span>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded font-black uppercase tracking-wider">
+              {testType === 'daily' ? '오늘의 개념체크 (Daily Check)' : testType === 'weekly' ? '주간 연결체크 (Weekly Bridge)' : '월간 마스터체크 (Monthly Mastery)'}
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-2 bg-[var(--bg-primary)] border border-[var(--border-color)] px-4 py-2.5 rounded-xl self-start md:self-center">
           <Hourglass size={16} className="text-indigo-500 animate-pulse" />
@@ -175,9 +213,9 @@ export const TestInterface: React.FC<TestInterfaceProps> = ({
 
             {/* Question Text Box */}
             <div className="bg-[var(--bg-primary)] p-5 rounded-2xl border border-[var(--border-color)]">
-              <h3 className="text-base font-extrabold text-[var(--text-title)] flex items-start gap-2 leading-relaxed">
+              <h3 className="text-base font-extrabold text-[var(--text-title)] flex items-start gap-2 leading-relaxed whitespace-pre-wrap">
                 <span className="w-6 h-6 shrink-0 bg-indigo-500 text-white rounded-full flex items-center justify-center text-xs font-black">Q</span>
-                {questionText}
+                <span className="flex-1">{questionText}</span>
               </h3>
             </div>
 

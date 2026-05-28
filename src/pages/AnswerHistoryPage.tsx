@@ -187,6 +187,9 @@ export const AnswerHistoryPage: React.FC<AnswerHistoryPageProps> = ({
           <div className="grid grid-cols-1 gap-4">
             {filteredAttempts.map(attempt => {
               const criteria = scoreUtils.calculateCriteriaScores(attempt.evaluationLevel, attempt.level, attempt.score);
+              const parts = attempt.unit.split(' ➔ ');
+              const largeUnit = parts[0] || attempt.unit;
+              const mediumUnit = parts[1] || '';
 
               return (
                 <div
@@ -194,43 +197,66 @@ export const AnswerHistoryPage: React.FC<AnswerHistoryPageProps> = ({
                   className="card-glass p-5 flex flex-col gap-4 hover:border-indigo-300 transition-colors"
                 >
                   {/* Top info row */}
-                  <div className="flex items-center justify-between flex-wrap gap-3">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[9px] bg-slate-200 dark:bg-slate-700 text-[var(--text-title)] px-2.5 py-0.5 rounded font-black">
-                        {attempt.testType === 'daily' ? '일일' : attempt.testType === 'weekly' ? '주간' : '월간'}
-                      </span>
-                      <h3 className="text-sm font-black text-[var(--text-title)] m-0 leading-none">{attempt.lessonTopic}</h3>
-                      <span className="text-[10px] text-[var(--text-muted)] font-medium">| {attempt.testDate}</span>
-                      
-                      {activeRole === 'teacher' && (
-                        <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded font-bold flex items-center gap-0.5">
-                          <User size={10} />
-                          학생: {attempt.studentName}
+                  <div className="flex flex-col gap-2.5">
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[9px] bg-indigo-500 text-white px-2 py-0.5 rounded font-black">
+                          {attempt.testType === 'daily' ? '일일 개념체크' : attempt.testType === 'weekly' ? '주간 연결체크' : '월간 마스터체크'}
                         </span>
-                      )}
-                    </div>
+                        {activeRole === 'teacher' && (
+                          <>
+                            <span className="text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-400 px-2 py-0.5 rounded font-black shadow-sm">
+                              {attempt.subject}
+                            </span>
+                            <span className="text-[10px] bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded font-black shadow-sm">
+                              {largeUnit}
+                            </span>
+                            {mediumUnit && (
+                              <span className="text-[10px] bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 px-2 py-0.5 rounded font-black shadow-sm">
+                                {mediumUnit}
+                              </span>
+                            )}
+                          </>
+                        )}
+                        <span className="text-[10px] text-[var(--text-muted)] font-medium">| {attempt.testDate}</span>
+                        
+                        {activeRole === 'teacher' && (
+                          <span className="text-[10px] bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded font-bold flex items-center gap-0.5">
+                            <User size={10} />
+                            학생: {attempt.studentName}
+                          </span>
+                        )}
+                      </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${getLevelBadgeColor(attempt.level)}`}>
-                        {attempt.level === 'basic' ? '기본' : attempt.level === 'standard' ? '표준' : '심화'}
-                      </span>
-                      {attempt.attemptType === 'reinforcement' && (
-                        <span className="bg-red-50 text-red-500 text-[9px] font-bold px-1.5 py-0.5 rounded border border-red-100">
-                          개념 강화
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${getLevelBadgeColor(attempt.level)}`}>
+                          {attempt.level === 'basic' ? '기본' : attempt.level === 'standard' ? '표준' : '심화'}
                         </span>
-                      )}
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${getEvaluationBadgeColor(attempt.evaluationLevel)}`}>
-                        {attempt.evaluationLevel === 'high' ? '상' : attempt.evaluationLevel === 'medium' ? '중' : '하'}
-                      </span>
-                      <span className="text-sm font-black text-indigo-500">{attempt.score}점</span>
+                        {attempt.attemptType === 'reinforcement' && (
+                          <span className="bg-red-50 text-red-500 text-[9px] font-bold px-1.5 py-0.5 rounded border border-red-100">
+                            개념 강화
+                          </span>
+                        )}
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${getEvaluationBadgeColor(attempt.evaluationLevel)}`}>
+                          {attempt.evaluationLevel === 'high' ? '상' : attempt.evaluationLevel === 'medium' ? '중' : '하'}
+                        </span>
+                        <span className="text-sm font-black text-indigo-500">{attempt.score}점</span>
+                      </div>
                     </div>
+                    
+                    {activeRole === 'teacher' && (
+                      <div className="text-[11px] text-[var(--text-muted)] flex flex-col gap-0.5 bg-[var(--bg-primary)] p-2.5 rounded-lg border border-[var(--border-color)]">
+                        <div><strong>소단원/주제:</strong> {attempt.lessonTopic}</div>
+                        {attempt.teacherDefinedScope && <div><strong>세부 학습 범위:</strong> {attempt.teacherDefinedScope}</div>}
+                      </div>
+                    )}
                   </div>
 
                   {/* Question & Answer texts */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[var(--border-color)] pt-3">
                     <div className="flex flex-col gap-1.5">
                       <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider block">진단 질문 내용</span>
-                      <p className="text-xs text-[var(--text-title)] font-medium bg-[var(--bg-primary)] p-3 rounded-lg border border-[var(--border-color)] leading-relaxed m-0">
+                      <p className="text-xs text-[var(--text-title)] font-medium bg-[var(--bg-primary)] p-3 rounded-lg border border-[var(--border-color)] leading-relaxed m-0 whitespace-pre-wrap">
                         {attempt.questionText}
                       </p>
                     </div>
@@ -240,7 +266,7 @@ export const AnswerHistoryPage: React.FC<AnswerHistoryPageProps> = ({
                         제출 답변 내용
                         {attempt.voiceTranscript && <span className="text-[8px] bg-indigo-50 text-indigo-600 px-1 rounded">🎤 음성</span>}
                       </span>
-                      <p className="text-xs text-[var(--text-main)] italic bg-[var(--bg-primary)] p-3 rounded-lg border border-[var(--border-color)] leading-relaxed m-0">
+                      <p className="text-xs text-[var(--text-main)] italic bg-[var(--bg-primary)] p-3 rounded-lg border border-[var(--border-color)] leading-relaxed m-0 whitespace-pre-wrap">
                         "{attempt.answerText}"
                       </p>
                     </div>
@@ -262,7 +288,7 @@ export const AnswerHistoryPage: React.FC<AnswerHistoryPageProps> = ({
                     {/* Deficit flags */}
                     <div className="flex flex-col gap-1.5 md:col-span-2 bg-indigo-50/30 dark:bg-indigo-950/20 p-2.5 rounded-lg border border-indigo-100 dark:border-indigo-900/30">
                       <span className="font-bold text-[var(--text-title)] block">교사 평가 피드백 및 약점 파악</span>
-                      <p className="text-[10px] text-[var(--text-main)] leading-relaxed m-0 mt-0.5">
+                      <p className="text-[10px] text-[var(--text-main)] leading-relaxed m-0 mt-0.5 whitespace-pre-wrap">
                         {attempt.feedback}
                       </p>
                       {attempt.missingConcepts.length > 0 && (

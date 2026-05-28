@@ -3,6 +3,37 @@ import { CheckCircle2, AlertCircle, XCircle, ArrowRight, BookOpen, AlertTriangle
 import type { AnswerAttempt } from '../../types';
 import { scoreUtils } from '../../utils/scoreUtils';
 
+const MATH_SPEECH_CORRECTIONS: Record<string, string> = {
+  '택지점': '꼭짓점',
+  '꼭지점': '꼭짓점',
+  '꼬짓점': '꼭짓점',
+  '미분개수': '미분계수',
+  '한별식': '판별식',
+  '반별식': '판별식',
+  '발별식': '판별식',
+  '이양정리': '이항정리',
+  '이앙정리': '이항정리',
+  '촛점': '초점',
+  '영행열': '영행렬',
+  '여행렬': '영행렬',
+  '행열': '행렬',
+  '오도법': '호도법',
+  '나디안': '라디안',
+  '여캄수': '역함수',
+  '우칸': '우극한',
+  '좌칸': '좌극한',
+  '대칭성': '대칭성',
+};
+
+const correctSpeechText = (text: string): string => {
+  let corrected = text;
+  Object.entries(MATH_SPEECH_CORRECTIONS).forEach(([wrong, right]) => {
+    const regex = new RegExp(wrong, 'g');
+    corrected = corrected.replace(regex, right);
+  });
+  return corrected;
+};
+
 interface FeedbackReportProps {
   attempt: AnswerAttempt;
   onRetrySubmit: (retryAnswerText: string, voiceUsed: boolean) => void;
@@ -23,6 +54,10 @@ export const FeedbackReport: React.FC<FeedbackReportProps> = ({
   const [voiceUsed, setVoiceUsed] = useState(false);
   const recognitionRef = React.useRef<any>(null);
 
+  const unitParts = attempt.unit ? attempt.unit.split(' ➔ ') : [];
+  const largeUnit = unitParts[0] || attempt.unit || '';
+  const mediumUnit = unitParts[1] || '';
+
   // Initialize Speech for Retry
   React.useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -39,7 +74,8 @@ export const FeedbackReport: React.FC<FeedbackReportProps> = ({
 
       rec.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
-        setRetryText(prev => prev + (prev ? ' ' : '') + transcript);
+        const correctedTranscript = correctSpeechText(transcript);
+        setRetryText(prev => prev + (prev ? ' ' : '') + correctedTranscript);
         setIsRecording(false);
       };
 
@@ -122,7 +158,8 @@ export const FeedbackReport: React.FC<FeedbackReportProps> = ({
           <div>
             <span className="text-xs text-[var(--text-muted)] font-bold">진단 채점 결과 리포트</span>
             <h2 className="text-2xl font-black text-[var(--text-title)] mt-0.5">{status.title} 판정</h2>
-            <p className="text-xs text-[var(--text-muted)] mt-1">
+
+            <p className="text-xs text-[var(--text-muted)] mt-2 m-0">
               문항 난이도: <strong>{attempt.level === 'basic' ? '기본' : attempt.level === 'standard' ? '표준' : '심화'}</strong> | 유형: {attempt.attemptType === 'reinforcement' ? '개념 강화형' : '일반 진단형'}
             </p>
           </div>
@@ -211,7 +248,7 @@ export const FeedbackReport: React.FC<FeedbackReportProps> = ({
                 </span>
               )}
             </div>
-            <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-[var(--border-color)] text-sm leading-relaxed text-[var(--text-main)] italic">
+            <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-[var(--border-color)] text-sm leading-relaxed text-[var(--text-main)] italic whitespace-pre-wrap">
               "{attempt.answerText}"
             </div>
           </div>
@@ -226,7 +263,7 @@ export const FeedbackReport: React.FC<FeedbackReportProps> = ({
                   <Lightbulb size={14} className="text-indigo-500" />
                   교사 조언 및 핵심 총평
                 </span>
-                <p className="text-xs text-[var(--text-main)] mt-2 leading-relaxed font-medium">
+                <p className="text-xs text-[var(--text-main)] mt-2 leading-relaxed font-medium whitespace-pre-wrap">
                   {attempt.feedback}
                 </p>
               </div>
@@ -321,7 +358,7 @@ export const FeedbackReport: React.FC<FeedbackReportProps> = ({
           {/* Reinforcement Question */}
           <div className="bg-[var(--bg-primary)] p-4 rounded-xl border border-[var(--border-color)]">
             <h4 className="text-xs font-extrabold text-[var(--text-title)] uppercase tracking-wider mb-1">개념 강화 문제</h4>
-            <p className="text-sm text-[var(--text-title)] font-bold leading-relaxed">{attempt.retryQuestion}</p>
+            <p className="text-sm text-[var(--text-title)] font-bold leading-relaxed whitespace-pre-wrap">{attempt.retryQuestion}</p>
           </div>
 
           {/* Text and Voice Inputs */}

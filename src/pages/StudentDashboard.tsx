@@ -193,73 +193,76 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             ) : (
               <div className="flex flex-col gap-4">
                 {/* Daily Checks */}
-                {daily.map(test => (
-                  <div
-                    key={test.id}
-                    className="card-glass p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-blue-500 hover:shadow-md transition-shadow"
-                  >
-                    <div>
-                      <span className="text-[10px] bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                        오늘의 개념체크 (Daily Check)
-                      </span>
-                      <h4 className="text-base font-extrabold text-[var(--text-title)] mt-1">{test.lessonTopic}</h4>
-                      <p className="text-xs text-[var(--text-muted)] mt-1">범위: {test.specificScope}</p>
-                    </div>
-                    <button
-                      onClick={() => onStartTest(test.id, 'daily')}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl flex items-center gap-1 self-start sm:self-center transition-colors"
+                {daily.map(test => {
+                  return (
+                    <div
+                      key={test.id}
+                      className="card-glass p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-blue-500 hover:shadow-md transition-shadow"
                     >
-                      <Play size={12} fill="white" />
-                      진단 시작
-                    </button>
-                  </div>
-                ))}
+                      <div>
+                        <span className="text-[10px] bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                          오늘의 개념체크 (Daily Check)
+                        </span>
+                        <h4 className="text-base font-extrabold text-[var(--text-title)] mt-1">{test.lessonTopic}</h4>
+                      </div>
+                      <button
+                        onClick={() => onStartTest(test.id, 'daily')}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 self-start sm:self-center transition-colors shadow-sm"
+                      >
+                        <Play size={12} fill="white" />
+                        진단 시작
+                      </button>
+                    </div>
+                  );
+                })}
 
                 {/* Weekly Bridges */}
-                {weekly.map(test => (
-                  <div
-                    key={test.id}
-                    className="card-glass p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-amber-500 hover:shadow-md transition-shadow"
-                  >
-                    <div>
-                      <span className="text-[10px] bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                        주간 연결체크 (Weekly Bridge)
-                      </span>
-                      <h4 className="text-base font-extrabold text-[var(--text-title)] mt-1">{test.lessonTopic}</h4>
-                      <p className="text-xs text-[var(--text-muted)] mt-1">설명: 이번 주 범위 누적 개념 결합 설명 진단</p>
-                    </div>
-                    <button
-                      onClick={() => onStartTest('weekly_bridge', 'weekly')}
-                      className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl flex items-center gap-1 self-start sm:self-center transition-colors"
+                {weekly.map(test => {
+                  return (
+                    <div
+                      key={test.id}
+                      className="card-glass p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-amber-500 hover:shadow-md transition-shadow"
                     >
-                      <Play size={12} fill="white" />
-                      진단 시작
-                    </button>
-                  </div>
-                ))}
+                      <div>
+                        <span className="text-[10px] bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                          주간 연결체크 (Weekly Bridge)
+                        </span>
+                        <h4 className="text-base font-extrabold text-[var(--text-title)] mt-1">{test.lessonTopic}</h4>
+                      </div>
+                      <button
+                        onClick={() => onStartTest('weekly_bridge', 'weekly')}
+                        className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 self-start sm:self-center transition-colors shadow-sm"
+                      >
+                        <Play size={12} fill="white" />
+                        진단 시작
+                      </button>
+                    </div>
+                  );
+                })}
 
                 {/* Monthly Mastery */}
-                {monthly.map(test => (
-                  <div
-                    key={test.id}
-                    className="card-glass p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-red-500 hover:shadow-md transition-shadow"
-                  >
-                    <div>
-                      <span className="text-[10px] bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-                        월간 마스터체크 (Monthly Mastery)
-                      </span>
-                      <h4 className="text-base font-extrabold text-[var(--text-title)] mt-1">{test.lessonTopic}</h4>
-                      <p className="text-xs text-[var(--text-muted)] mt-1">설명: 이번 달 누적 개념 통합 및 고난도 문항 추론 진단</p>
-                    </div>
-                    <button
-                      onClick={() => onStartTest('monthly_mastery', 'monthly')}
-                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl flex items-center gap-1 self-start sm:self-center transition-colors"
+                {monthly.map(test => {
+                  return (
+                    <div
+                      key={test.id}
+                      className="card-glass p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 border-l-red-500 hover:shadow-md transition-shadow"
                     >
-                      <Play size={12} fill="white" />
-                      진단 시작
-                    </button>
-                  </div>
-                ))}
+                      <div>
+                        <span className="text-[10px] bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                          월간 마스터체크 (Monthly Mastery)
+                        </span>
+                        <h4 className="text-base font-extrabold text-[var(--text-title)] mt-1">{test.lessonTopic}</h4>
+                      </div>
+                      <button
+                        onClick={() => onStartTest('monthly_mastery', 'monthly')}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 self-start sm:self-center transition-colors shadow-sm"
+                      >
+                        <Play size={12} fill="white" />
+                        진단 시작
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

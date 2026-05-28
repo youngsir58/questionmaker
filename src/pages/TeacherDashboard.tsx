@@ -204,6 +204,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   <div className="flex flex-col gap-3">
                     {studentAttempts.map(attempt => {
                       const crit = scoreUtils.calculateCriteriaScores(attempt.evaluationLevel, attempt.level, attempt.score);
+                      const parts = attempt.unit.split(' ➔ ');
+                      const largeUnit = parts[0] || attempt.unit;
+                      const mediumUnit = parts[1] || '';
 
                       return (
                         <div
@@ -212,10 +215,28 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                         >
                           <div className="flex items-center justify-between flex-wrap gap-2">
                             <div>
-                              <span className="text-[9px] bg-slate-200 dark:bg-slate-700 text-[var(--text-title)] px-2 py-0.5 rounded font-black mr-2">
-                                {attempt.testType === 'daily' ? '일일' : attempt.testType === 'weekly' ? '주간' : '월간'}
-                              </span>
+                              <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
+                                <span className="text-[9px] bg-indigo-500 text-white px-2 py-0.5 rounded font-black">
+                                  {attempt.testType === 'daily' ? '일일 개념체크' : attempt.testType === 'weekly' ? '주간 연결체크' : '월간 마스터체크'}
+                                </span>
+                                <span className="text-[9px] bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-400 px-2 py-0.5 rounded font-black">
+                                  {attempt.subject}
+                                </span>
+                                <span className="text-[9px] bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded font-black">
+                                  {largeUnit}
+                                </span>
+                                {mediumUnit && (
+                                  <span className="text-[9px] bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 px-2 py-0.5 rounded font-black">
+                                    {mediumUnit}
+                                  </span>
+                                )}
+                              </div>
                               <span className="text-xs font-black text-[var(--text-title)]">{attempt.lessonTopic}</span>
+                              {attempt.teacherDefinedScope && (
+                                <span className="text-[10px] text-[var(--text-muted)] block mt-1">
+                                  <strong>세부 학습 범위:</strong> {attempt.teacherDefinedScope}
+                                </span>
+                              )}
                               <span className="text-[10px] text-[var(--text-muted)] block mt-0.5">난이도: {attempt.level} | 날짜: {attempt.testDate}</span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -232,7 +253,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                             </div>
                           </div>
 
-                          <div className="bg-[var(--bg-card)] p-3 rounded-lg border border-[var(--border-color)] text-xs text-[var(--text-main)] italic leading-relaxed">
+                          <div className="bg-[var(--bg-card)] p-3 rounded-lg border border-[var(--border-color)] text-xs text-[var(--text-main)] italic leading-relaxed whitespace-pre-wrap">
                             "{attempt.answerText}"
                           </div>
 
@@ -243,7 +264,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                             <span>추론: <strong>{crit.reasoningScore}</strong></span>
                           </div>
 
-                          <div className="text-[10px] bg-indigo-50/50 dark:bg-indigo-950/20 p-2.5 rounded border border-indigo-100 dark:border-indigo-900/30 text-[var(--text-main)] leading-relaxed">
+                          <div className="text-[10px] bg-indigo-50/50 dark:bg-indigo-950/20 p-2.5 rounded border border-indigo-100 dark:border-indigo-900/30 text-[var(--text-main)] leading-relaxed whitespace-pre-wrap">
                             💡 <strong>교사 피드백:</strong> {attempt.feedback}
                             {attempt.missingConcepts.length > 0 && (
                               <span className="block mt-1 text-red-600 dark:text-red-400 font-semibold">
@@ -281,19 +302,38 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                   </div>
                 ) : (
                   <div className="flex flex-col gap-4">
-                    {classScopes.map(scope => (
-                      <div
-                        key={scope.id}
-                        className="p-4 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-indigo-300 transition-colors"
-                      >
-                        <div>
-                          <span className="text-[9px] bg-slate-200 dark:bg-slate-700 text-[var(--text-title)] px-2.5 py-0.5 rounded font-black mr-2">
-                            {scope.grade.split('(')[0]}
-                          </span>
+                    {classScopes.map(scope => {
+                      const parts = scope.unit.split(' ➔ ');
+                      const largeUnit = parts[0] || scope.unit;
+                      const mediumUnit = parts[1] || '';
+
+                      return (
+                        <div
+                          key={scope.id}
+                          className="p-4 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-indigo-300 transition-colors"
+                        >
+                          <div>
+                            <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
+                              <span className="text-[9px] bg-slate-200 dark:bg-slate-700 text-[var(--text-title)] px-2.5 py-0.5 rounded font-black">
+                                {scope.grade.split('(')[0].trim()}
+                              </span>
+                              <span className="text-[9px] bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-400 px-2 py-0.5 rounded font-black shadow-sm">
+                                {scope.subject}
+                              </span>
+                              <span className="text-[9px] bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded font-black shadow-sm">
+                                {largeUnit}
+                              </span>
+                              {mediumUnit && (
+                                <span className="text-[9px] bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300 px-2 py-0.5 rounded font-black shadow-sm">
+                                  {mediumUnit}
+                                </span>
+                              )}
+                            </div>
                           <span className="text-xs font-black text-[var(--text-title)]">{scope.lessonTopic}</span>
-                          <p className="text-[10px] text-[var(--text-muted)] mt-1.5 mb-0">
-                            <strong>세부 범위:</strong> {scope.specificScope} | <strong>시험일자:</strong> {scope.testDate}
-                          </p>
+                          <div className="text-[10px] text-[var(--text-muted)] mt-1.5 flex flex-col gap-0.5">
+                            <div><strong>세부 학습 범위:</strong> {scope.specificScope}</div>
+                            <div><strong>시험 일자:</strong> {scope.testDate}</div>
+                          </div>
                         </div>
                         <button
                           onClick={() => onSelectScopeForEdit(scope.id)}
@@ -303,7 +343,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
                           <ChevronRight size={14} />
                         </button>
                       </div>
-                    ))}
+                    );
+                  })}
                   </div>
                 )}
               </div>

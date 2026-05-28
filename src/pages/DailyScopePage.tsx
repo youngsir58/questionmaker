@@ -25,7 +25,11 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
   const [classId, setClassId] = useState(existingScope?.classId || 'class_a');
   const [grade, setGrade] = useState(existingScope?.grade || '고등학교 1학년 (High School 1)');
   const [subject, setSubject] = useState(existingScope?.subject || '공통수학 1 (Common Mathematics 1)');
-  const [unit, setUnit] = useState(existingScope?.unit || '이차방정식과 이차함수 (Quadratic Equations and Functions)');
+  
+  const initialUnitParts = existingScope?.unit ? existingScope.unit.split(' ➔ ') : ['II. 방정식과 부등식', '3. 이차방정식과 이차함수'];
+  const [largeUnit, setLargeUnit] = useState(initialUnitParts[0] || '');
+  const [mediumUnit, setMediumUnit] = useState(initialUnitParts[1] || '');
+
   const [lessonTopic, setLessonTopic] = useState(existingScope?.lessonTopic || '');
   const [specificScope, setSpecificScope] = useState(existingScope?.specificScope || '');
   const [keyConcepts, setKeyConcepts] = useState(existingScope?.keyConcepts || '');
@@ -42,35 +46,47 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
   const [selectedCurricTopic, setSelectedCurricTopic] = useState('');
 
   // Handle auto fill based on curriculum topic choice
-  const handleCurriculumTopicSelect = (topicName: string) => {
-    setSelectedCurricTopic(topicName);
+  const handleCurriculumTopicSelect = (topicId: string) => {
+    setSelectedCurricTopic(topicId);
     
     // Search topic details in curriculum database
-    let foundTopic: CurriculumTopic | null = null;
-    sampleCurriculum.forEach(g => {
-      g.subjects.forEach(s => {
-        s.units.forEach(u => {
-          u.topics.forEach(t => {
-            if (t.topic === topicName) {
-              foundTopic = t;
-              // Also update grade, subject, unit automatically
-              setGrade(g.gradeName);
-              setSubject(s.subjectName);
-              setUnit(u.unitName);
-            }
-          });
-        });
-      });
-    });
+    const foundTopic = sampleCurriculum.find(t => t.id === topicId);
 
     if (foundTopic) {
-      const ft: CurriculumTopic = foundTopic;
-      setLessonTopic(ft.topic);
-      setSpecificScope(ft.specificScope.join(', '));
-      setKeyConcepts(ft.keyConcepts.join(', '));
-      setAchievementStandard(ft.achievementStandard);
-      setKeywords(ft.keywords.join(', '));
-      setCommonMisconceptions(ft.commonMisconceptions.join(', '));
+      // Auto-determine grade based on subject name
+      const isHighSchool1 = foundTopic.subject.includes('공통수학');
+      const determinedGrade = isHighSchool1 
+        ? '고등학교 1학년 (High School 1)' 
+        : '고등학교 2학년 (High School 2)';
+        
+      setGrade(determinedGrade);
+      
+      const SUBJECT_MAP: Record<string, string> = {
+        '공통수학 1': '공통수학 1 (Common Mathematics 1)',
+        '공통수학 2': '공통수학 2 (Common Mathematics 2)',
+        '대수': '대수 (Algebra)',
+        '미적분 I': '미적분 I (Calculus I)',
+        '미적분 II': '미적분 II (Calculus II)',
+        '확률과 통계': '확률과 통계 (Probability and Statistics)',
+        '기하': '기하 (Geometry)'
+      };
+      
+      setSubject(SUBJECT_MAP[foundTopic.subject] || foundTopic.subject);
+      setLargeUnit(foundTopic.bigUnit);
+      setMediumUnit(foundTopic.middleUnit);
+
+      // Parse ID for dynamic topic prefix (e.g. "topic-015" -> 15 -> "15)")
+      const numPrefix = parseInt(foundTopic.id.split('-')[1]);
+      const formattedTopicName = isNaN(numPrefix) 
+        ? foundTopic.topicName 
+        : `${numPrefix}) ${foundTopic.topicName}`;
+      
+      setLessonTopic(formattedTopicName);
+      setSpecificScope(foundTopic.specificScope.join(', '));
+      setKeyConcepts(foundTopic.keyConcepts.join(', '));
+      setAchievementStandard(foundTopic.achievementStandard);
+      setKeywords(foundTopic.keywords.join(', '));
+      setCommonMisconceptions(foundTopic.commonMisconceptions.join(', '));
     }
   };
 
@@ -80,12 +96,14 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
       return;
     }
 
+    const combinedUnit = mediumUnit.trim() ? `${largeUnit.trim()} ➔ ${mediumUnit.trim()}` : largeUnit.trim();
+
     const tempScope: TeacherScope = {
       id: existingScope?.id || `scope_${Date.now()}`,
       classId,
       grade,
       subject,
-      unit,
+      unit: combinedUnit,
       lessonTopic,
       specificScope,
       keyConcepts,
@@ -107,12 +125,14 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
       return;
     }
 
+    const combinedUnit = mediumUnit.trim() ? `${largeUnit.trim()} ➔ ${mediumUnit.trim()}` : largeUnit.trim();
+
     const finalScope: TeacherScope = {
       id: existingScope?.id || `scope_${Date.now()}`,
       classId,
       grade,
       subject,
-      unit,
+      unit: combinedUnit,
       lessonTopic,
       specificScope,
       keyConcepts,
@@ -173,17 +193,15 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
               className="w-full p-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-xs font-semibold text-[var(--text-title)] focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
               <option value="">-- 교육과정 단원을 선택하세요 (Select a Topic) --</option>
-              {sampleCurriculum.flatMap(g => 
-                g.subjects.flatMap(s => 
-                  s.units.flatMap(u => 
-                    u.topics.map(t => (
-                      <option key={t.topic} value={t.topic}>
-                        [{s.subjectName.split(' ')[0]}] {t.topic.split('(')[0]}
-                      </option>
-                    ))
-                  )
-                )
-              )}
+              {sampleCurriculum.map(t => {
+                const numPrefix = parseInt(t.id.split('-')[1]);
+                const formattedName = isNaN(numPrefix) ? t.topicName : `${numPrefix}) ${t.topicName}`;
+                return (
+                  <option key={t.id} value={t.id}>
+                    [{t.subject}] {t.bigUnit} ➔ {t.middleUnit} ➔ {formattedName}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
@@ -213,7 +231,7 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div>
                 <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-1">대상 학년</label>
                 <input
@@ -238,8 +256,18 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
                 <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-1">대단원명</label>
                 <input
                   type="text"
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
+                  value={largeUnit}
+                  onChange={(e) => setLargeUnit(e.target.value)}
+                  className="w-full p-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] text-xs text-[var(--text-title)]"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider block mb-1">중단원명</label>
+                <input
+                  type="text"
+                  value={mediumUnit}
+                  onChange={(e) => setMediumUnit(e.target.value)}
                   className="w-full p-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] text-xs text-[var(--text-title)]"
                 />
               </div>
