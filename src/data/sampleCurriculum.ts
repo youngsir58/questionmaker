@@ -242,7 +242,7 @@ export const sampleCurriculum: CurriculumTopic[] = [
   },
   {
     id: "topic-019",
-    subject: "미적분 II",
+    subject: "미적분",
     bigUnit: "I. 수열의 극한",
     middleUnit: "1. 수열의 극한",
     topicName: "수열의 극한과 수렴",
@@ -257,7 +257,7 @@ export const sampleCurriculum: CurriculumTopic[] = [
   },
   {
     id: "topic-012",
-    subject: "미적분 II",
+    subject: "미적분",
     bigUnit: "II. 여러 가지 함수의 미분법",
     middleUnit: "2. 여러 가지 함수의 미분법",
     topicName: "합성함수의 미분법",

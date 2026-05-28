@@ -44,6 +44,78 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
 
   // Curriculum Navigation helper states
   const [selectedCurricTopic, setSelectedCurricTopic] = useState('');
+  const [activeGradeFilter, setActiveGradeFilter] = useState<'all' | 'high1' | 'high2' | 'high3'>('all');
+  const [activeSubjectFilter, setActiveSubjectFilter] = useState<string>('all');
+
+  // Filter curriculum topics based on selected grade and subject, and sort them numerically by topic number
+  const filteredCurriculum = sampleCurriculum
+    .filter(t => {
+      // 1. Grade filter
+      if (activeGradeFilter === 'high1') {
+        const isHigh1 = t.subject === '공통수학 1' || t.subject === '공통수학 2';
+        if (!isHigh1) return false;
+      } else if (activeGradeFilter === 'high2') {
+        const isHigh2 = t.subject === '대수' || t.subject === '미적분 I' || t.subject === '확률과 통계' || t.subject === '기하';
+        if (!isHigh2) return false;
+      } else if (activeGradeFilter === 'high3') {
+        const isHigh3 = t.subject === '미적분' || t.subject === '확률과 통계' || t.subject === '기하';
+        if (!isHigh3) return false;
+      }
+
+      // 2. Subject filter
+      if (activeSubjectFilter !== 'all') {
+        if (t.subject !== activeSubjectFilter) return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      const numA = parseInt(a.id.split('-')[1]) || 0;
+      const numB = parseInt(b.id.split('-')[1]) || 0;
+      return numA - numB;
+    });
+
+  // Group filtered topics by Large Unit (bigUnit)
+  const groupedTopics: Record<string, CurriculumTopic[]> = {};
+  filteredCurriculum.forEach(t => {
+    if (!groupedTopics[t.bigUnit]) {
+      groupedTopics[t.bigUnit] = [];
+    }
+    groupedTopics[t.bigUnit].push(t);
+  });
+
+  const getSubjectsForGrade = () => {
+    if (activeGradeFilter === 'high1') {
+      return [
+        { id: '공통수학 1', label: '1학년 1학기 (공통수학 1) [2022]' },
+        { id: '공통수학 2', label: '1학년 2학기 (공통수학 2) [2022]' }
+      ];
+    }
+    if (activeGradeFilter === 'high2') {
+      return [
+        { id: '대수', label: '2학년 1학기 (대수) [2022]' },
+        { id: '미적분 I', label: '2학년 2학기 (미적분 I) [2022]' },
+        { id: '확률과 통계', label: '선택과목 (확률과 통계) [2022]' },
+        { id: '기하', label: '선택과목 (기하) [2022]' }
+      ];
+    }
+    if (activeGradeFilter === 'high3') {
+      return [
+        { id: '미적분', label: '선택과목 (미적분) [2015]' },
+        { id: '확률과 통계', label: '선택과목 (확률과 통계) [2015]' },
+        { id: '기하', label: '선택과목 (기하) [2015]' }
+      ];
+    }
+    return [
+      { id: '공통수학 1', label: '공통수학 1 [2022]' },
+      { id: '공통수학 2', label: '공통수학 2 [2022]' },
+      { id: '대수', label: '대수 [2022]' },
+      { id: '미적분 I', label: '미적분 I [2022]' },
+      { id: '미적분', label: '미적분 [2015]' },
+      { id: '확률과 통계', label: '확률과 통계' },
+      { id: '기하', label: '기하' }
+    ];
+  };
 
   // Handle auto fill based on curriculum topic choice
   const handleCurriculumTopicSelect = (topicId: string) => {
@@ -53,11 +125,36 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
     const foundTopic = sampleCurriculum.find(t => t.id === topicId);
 
     if (foundTopic) {
-      // Auto-determine grade based on subject name
-      const isHighSchool1 = foundTopic.subject.includes('공통수학');
-      const determinedGrade = isHighSchool1 
-        ? '고등학교 1학년 (High School 1)' 
-        : '고등학교 2학년 (High School 2)';
+      // Determine grade and curriculum label dynamically
+      let determinedGrade = '고등학교 2학년 (High School 2)';
+      let curriculumLabel = ' [2022 개정]';
+
+      if (activeGradeFilter === 'high1') {
+        determinedGrade = '고등학교 1학년 (High School 1)';
+        curriculumLabel = ' [2022 개정]';
+      } else if (activeGradeFilter === 'high2') {
+        determinedGrade = '고등학교 2학년 (High School 2)';
+        curriculumLabel = ' [2022 개정]';
+      } else if (activeGradeFilter === 'high3') {
+        determinedGrade = '고등학교 3학년 (High School 3)';
+        curriculumLabel = ' [2015 개정]';
+      } else {
+        // Fallback for activeGradeFilter === 'all'
+        if (foundTopic.subject.includes('공통수학')) {
+          determinedGrade = '고등학교 1학년 (High School 1)';
+          curriculumLabel = ' [2022 개정]';
+        } else if (foundTopic.subject === '대수' || foundTopic.subject === '미적분 I') {
+          determinedGrade = '고등학교 2학년 (High School 2)';
+          curriculumLabel = ' [2022 개정]';
+        } else if (foundTopic.subject === '미적분') {
+          determinedGrade = '고등학교 3학년 (High School 3)';
+          curriculumLabel = ' [2015 개정]';
+        } else {
+          // 확률과 통계 or 기하
+          determinedGrade = '고등학교 2학년 (High School 2)';
+          curriculumLabel = ' [2022 개정]';
+        }
+      }
         
       setGrade(determinedGrade);
       
@@ -66,12 +163,13 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
         '공통수학 2': '공통수학 2 (Common Mathematics 2)',
         '대수': '대수 (Algebra)',
         '미적분 I': '미적분 I (Calculus I)',
-        '미적분 II': '미적분 II (Calculus II)',
+        '미적분': '미적분 (Calculus)',
         '확률과 통계': '확률과 통계 (Probability and Statistics)',
         '기하': '기하 (Geometry)'
       };
       
-      setSubject(SUBJECT_MAP[foundTopic.subject] || foundTopic.subject);
+      const subjectBase = SUBJECT_MAP[foundTopic.subject] || foundTopic.subject;
+      setSubject(`${subjectBase}${curriculumLabel}`);
       setLargeUnit(foundTopic.bigUnit);
       setMediumUnit(foundTopic.middleUnit);
 
@@ -187,22 +285,130 @@ export const DailyScopePage: React.FC<DailyScopePageProps> = ({
             <p className="text-[10px] text-[var(--text-muted)] leading-relaxed m-0">
               학습 단원을 선택하시면 성취기준, 오개념, 핵심 용어와 문제 가이드가 즉각 자동 완성됩니다.
             </p>
-            <select
-              value={selectedCurricTopic}
-              onChange={(e) => handleCurriculumTopicSelect(e.target.value)}
-              className="w-full p-2.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-card)] text-xs font-semibold text-[var(--text-title)] focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
-              <option value="">-- 교육과정 단원을 선택하세요 (Select a Topic) --</option>
-              {sampleCurriculum.map(t => {
-                const numPrefix = parseInt(t.id.split('-')[1]);
-                const formattedName = isNaN(numPrefix) ? t.topicName : `${numPrefix}) ${t.topicName}`;
-                return (
-                  <option key={t.id} value={t.id}>
-                    [{t.subject}] {t.bigUnit} ➔ {t.middleUnit} ➔ {formattedName}
-                  </option>
-                );
-              })}
-            </select>
+            {/* 3-Step Curriculum Filtering Buttons */}
+            <div className="flex flex-col gap-4 mt-1 border-t border-[var(--border-color)] pt-3">
+              {/* Step 1: Grade Selection */}
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                  1단계: 학년 선택
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: 'all', label: '전체 학년' },
+                    { id: 'high1', label: '고1 (2022 개정)' },
+                    { id: 'high2', label: '고2 (2022 개정)' },
+                    { id: 'high3', label: '고3 (2015 개정)' }
+                  ].map(btn => {
+                    const isActive = activeGradeFilter === btn.id;
+                    return (
+                      <button
+                        key={btn.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveGradeFilter(btn.id as any);
+                          setActiveSubjectFilter('all');
+                        }}
+                        className={`px-3.5 py-2 text-xs font-bold rounded-xl border cursor-pointer transition-all ${
+                          isActive
+                            ? 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-100 dark:shadow-none font-extrabold'
+                            : 'border-[var(--border-color)] text-[var(--text-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-primary)] hover:border-purple-300'
+                        }`}
+                      >
+                        {btn.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Step 2: Semester / Subject Selection */}
+              <div className="flex flex-col gap-1.5">
+                <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
+                  2단계: 학기/과목 선택
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubjectFilter('all')}
+                    className={`px-3.5 py-2 text-xs font-bold rounded-xl border cursor-pointer transition-all ${
+                      activeSubjectFilter === 'all'
+                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100 dark:shadow-none font-extrabold'
+                        : 'border-[var(--border-color)] text-[var(--text-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-primary)] hover:border-indigo-300'
+                    }`}
+                  >
+                    전체 과목
+                  </button>
+                  {getSubjectsForGrade().map(sub => {
+                    const isActive = activeSubjectFilter === sub.id;
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        onClick={() => setActiveSubjectFilter(sub.id)}
+                        className={`px-3.5 py-2 text-xs font-bold rounded-xl border cursor-pointer transition-all ${
+                          isActive
+                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100 dark:shadow-none font-extrabold'
+                            : 'border-[var(--border-color)] text-[var(--text-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-primary)] hover:border-indigo-300'
+                        }`}
+                      >
+                        {sub.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Step 3: Large/Medium Unit & Topic Buttons */}
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                  3단계: 단원/학습 주제 선택 (단일 클릭 시 하단 개념설정 자동완성)
+                </span>
+                {Object.keys(groupedTopics).length === 0 ? (
+                  <div className="text-center text-xs text-[var(--text-muted)] py-6 bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)] border-dashed">
+                    선택한 조건에 부합하는 교육과정 단원이 없습니다.
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-4 max-h-[280px] overflow-y-auto pr-1 bg-[var(--bg-primary)] p-3.5 rounded-xl border border-[var(--border-color)]">
+                    {Object.entries(groupedTopics).map(([bigUnit, topics]) => (
+                      <div key={bigUnit} className="flex flex-col gap-2">
+                        <div className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 border-b border-[var(--border-color)] pb-1">
+                          {bigUnit}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {topics.map(t => {
+                            const numPrefix = parseInt(t.id.split('-')[1]);
+                            const formattedName = isNaN(numPrefix) ? t.topicName : `${numPrefix}) ${t.topicName}`;
+                            const isSelected = selectedCurricTopic === t.id;
+                            return (
+                              <button
+                                key={t.id}
+                                type="button"
+                                onClick={() => handleCurriculumTopicSelect(t.id)}
+                                className={`text-left p-3 rounded-xl border text-xs cursor-pointer transition-all flex flex-col gap-1 relative ${
+                                  isSelected
+                                    ? 'bg-purple-600/10 border-purple-500 text-[var(--text-title)] shadow-sm ring-1 ring-purple-500/30'
+                                    : 'border-[var(--border-color)] text-[var(--text-main)] bg-[var(--bg-card)] hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50/5'
+                                }`}
+                              >
+                                <span className="text-[9px] text-[var(--text-muted)] font-bold">
+                                  {t.subject} ➔ {t.middleUnit}
+                                </span>
+                                <span className={`font-semibold text-xs leading-snug ${isSelected ? 'text-purple-600 dark:text-purple-400 font-extrabold' : ''}`}>
+                                  {formattedName}
+                                </span>
+                                {isSelected && (
+                                  <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-purple-500 animate-ping" />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Core Settings fields */}
