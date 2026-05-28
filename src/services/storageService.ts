@@ -114,7 +114,7 @@ export const storageService = {
       return; // Already initialized
     }
 
-    console.log('Initializing mock data for QuestionMaker...');
+    console.log('Initializing mock data for MathLog...');
 
     // 1. Classes
     const mockClasses: Class[] = [

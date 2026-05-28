@@ -269,7 +269,7 @@ function App() {
 
       <footer className="py-6 border-t border-[var(--border-color)] bg-[var(--bg-card)] text-center text-[10px] text-[var(--text-muted)] font-semibold mt-auto">
         <div className="max-w-7xl mx-auto px-4">
-          © 2026 QuestionMaker. 한국 고등학교 수학 교육과정 성취수준 검증 엔진 탑재.
+          © 2026 MathLog. 한국 고등학교 수학 교육과정 성취수준 검증 엔진 탑재.
         </div>
       </footer>
     </div>

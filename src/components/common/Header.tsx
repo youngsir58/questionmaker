@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <h1 className="text-xl font-bold text-[var(--text-title)] tracking-tight m-0 leading-none">
-              QuestionMaker
+              MathLog
             </h1>
             <span className="text-xs text-[var(--text-muted)] font-medium">오늘의 수학 개념체크</span>
           </div>

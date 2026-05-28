@@ -25,7 +25,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRole, onNaviga
         </span>
         <h1 className="text-4xl sm:text-5xl font-black text-[var(--text-title)] tracking-tight leading-tight m-0">
           개념을 직접 설명하며 완성하는 <br />
-          <span className="text-indigo-500 bg-clip-text">수학 진단 웹앱, QuestionMaker</span>
+          <span className="text-indigo-500 bg-clip-text">수학 진단 웹앱, MathLog</span>
         </h1>
         <p className="text-sm md:text-base text-[var(--text-muted)] mt-2 leading-relaxed">
           수학 문제를 기계적으로 풀기만 하나요? 개념을 타인에게 말이나 텍스트로 설명할 수 있을 때 진짜 내 지식이 됩니다. 

@@ -58,7 +58,7 @@ export const reminderService = {
     // If browser notifications are permitted, trigger them
     if (dueReminders.length > 0 && 'Notification' in window && Notification.permission === 'granted') {
       dueReminders.forEach(r => {
-        new Notification('QuestionMaker 복습 알림', {
+        new Notification('MathLog 복습 알림', {
           body: r.message,
           icon: '/favicon.ico' // Or default icon
         });
