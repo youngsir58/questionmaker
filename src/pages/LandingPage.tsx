@@ -19,7 +19,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSelectRole, onNaviga
   return (
     <div className="flex-1 flex flex-col items-center justify-center max-w-6xl mx-auto px-4 py-12 gap-12 text-center">
       {/* Hero section */}
-      <div className="flex flex-col items-center gap-4 max-w-3xl animate-wave">
+      <div className="flex flex-col items-center gap-4 max-w-3xl animate-slide-up">
         <span className="text-xs bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 px-3 py-1.5 rounded-full font-bold uppercase tracking-wider">
           고등학교 수학 메타인지 진단 플랫폼
         </span>

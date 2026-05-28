@@ -64,7 +64,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
   const stats = studentStats();
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col gap-8 animate-wave">
+    <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col gap-8 animate-slide-up">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -146,7 +146,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
         <div className="lg:col-span-3 flex flex-col gap-6">
           {selectedStudentId && selectedStudent ? (
             /* INDIVIDUAL STUDENT INSPECTION MODE */
-            <div className="flex flex-col gap-6 animate-wave">
+            <div className="flex flex-col gap-6 animate-slide-up">
               {/* Student header card */}
               <div className="card-glass p-6 border-l-8 border-indigo-500 flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div>
@@ -265,7 +265,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({
             </div>
           ) : (
             /* CLASS OVERVIEW MODE */
-            <div className="flex flex-col gap-6 animate-wave">
+            <div className="flex flex-col gap-6 animate-slide-up">
               {/* Class Scopes List */}
               <div className="card-glass p-6">
                 <h3 className="text-sm font-extrabold text-[var(--text-title)] uppercase tracking-wider mb-4 flex items-center justify-between">

@@ -78,7 +78,7 @@ export const ResultPage: React.FC<ResultPageProps> = ({ lastAttemptId, onReturnT
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-8 animate-wave">
+    <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-8 animate-slide-up">
       {/* Main congrats card */}
       <div className="card-glass p-8 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/10 border-indigo-200 dark:border-indigo-900/40 text-center flex flex-col items-center gap-4">
         <div className="p-4 bg-indigo-500 text-white rounded-full shadow-lg shadow-indigo-200 dark:shadow-none animate-pulse">

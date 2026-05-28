@@ -114,7 +114,7 @@ export const FeedbackReport: React.FC<FeedbackReportProps> = ({
   const status = getStatusDisplay();
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 flex flex-col gap-6 animate-wave">
+    <div className="max-w-4xl mx-auto px-4 py-6 flex flex-col gap-6 animate-slide-up">
       {/* 1. Score and Summary Card */}
       <div className={`card-glass p-6 border-t-8 border-t-indigo-500 flex flex-col md:flex-row items-center justify-between gap-6`}>
         <div className="flex items-center gap-4">

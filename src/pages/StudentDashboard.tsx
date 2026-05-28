@@ -156,7 +156,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const badges = getBadges();
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-8 animate-wave">
+    <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-8 animate-slide-up">
       {/* Welcome Banner */}
       <div className="card-glass p-6 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-200 dark:border-indigo-900/40 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>

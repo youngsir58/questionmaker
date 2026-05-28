@@ -78,7 +78,7 @@ export const AnswerHistoryPage: React.FC<AnswerHistoryPageProps> = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-6 animate-wave">
+    <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col gap-6 animate-slide-up">
       {/* Page Header */}
       <div>
         <h2 className="text-xl font-black text-[var(--text-title)] flex items-center gap-2">
